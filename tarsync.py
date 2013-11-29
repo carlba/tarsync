@@ -54,7 +54,7 @@ class ProgramHandler(object):
     def __init__(self, settings_file):
         super(ProgramHandler, self).__init__()
         self.settings_file = settings_file
-        self.os = platform.system()
+        self.os = platform.system().lower()
 
     def store_dict_to_file(self, filename, thedict):
         with open(filename, "w+") as jsonfile:
@@ -69,13 +69,14 @@ class ProgramHandler(object):
 
     def handle_program(self, program):
         for path in program["paths"]:
-            if self.os == "Linux":
+            if self.os == "linux":
                 (spath,sfile) = os.path.split(path["linux"])
                 #spath = path["linux"]
-            elif self.os == "Windows":
+            elif self.os == "windows":
                 (spath,sfile) = os.path.split(path["windows"])
                 #spath = path["windows"]
             #print "spath %s sfile %s" % (spath,sfile)
+            os.chdir(self.out_path)
             self.old_dir = os.getcwd()
             os.chdir(spath)
             compressed_fname = "%s_%s.tar.gz" % (program["name"],path["name"])
@@ -87,7 +88,12 @@ class ProgramHandler(object):
             self.handle_program(program)
 
     def do_work(self):
-        self.programs = self.read_dict_from_file(self.settings_file)
+        self.settings = self.read_dict_from_file(self.settings_file)
+        self.out_path = self.settings["path"][self.os]
+
+        logging.debug("The outpath for tarsync is %s" % self.out_path)
+
+        self.programs = self.settings["programs"]
         self.handle_programs(self.programs)
 
 
@@ -95,7 +101,7 @@ class ProgramDecompresser(ProgramHandler):
     """docstring for ClassName"""
 
     def handle_compression(self, compressed_fname, sfile):
-        tar = tarfile.open(os.path.join(self.old_dir, compressed_fname), "r:gz")
+        tar = tarfile.open(os.path.join(self.out_path, compressed_fname), "r:gz")
         #logging.debug(tar.getmembers())
         tar.extractall()
         tar.close()

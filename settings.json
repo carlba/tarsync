@@ -1,22 +1,29 @@
-[
+{
+  "path": {
+    "windows": "c:\\Dropbox\\sync",
+    "linux": "/home/cada/Dropbox/sync"
+  },
+  "programs": [
     {
-        "name": "sublime",
-        "paths": [
-            {
-                "name" : "data",
-                "windows": "c:\\Users\\Carl\\AppData\\Roaming\\Sublime Text 2",
-                "linux": "/home/cada/.config/sublime-text-2"
-            }
-        ]
+      "name": "sublime",
+      "paths": [
+        {
+          "name": "data",
+          "windows": "c:\\Users\\Carl\\AppData\\Roaming\\Sublime Text 2",
+          "linux": "/home/cada/.config/sublime-text-2"
+        }
+      ]
     },
     {
-        "name": "xbmc",
-        "paths": [
-            {
-                "name" : "data",
-                "windows": "c:\\Users\\Carl\\AppData\\Roaming\\Sublime Text 2",
-                "linux": "/home/cada/.xbmc/userdata"
-            }
-        ]
+      "name": "xbmc",
+      "paths": [
+        {
+          "name": "data",
+          "windows": "c:\\Users\\Carl\\AppData\\Roaming\\Sublime Text 2",
+          "linux": "/home/cada/.xbmc/userdata"
+        }
+      ],
+      "output_path": "/home/cada/Dropbox/"
     }
-]
+  ]
+}
