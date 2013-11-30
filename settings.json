@@ -9,8 +9,8 @@
       "paths": [
         {
           "name": "data",
-          "windows": "c:\\Users\\Carl\\AppData\\Roaming\\Sublime Text 2",
-          "linux": "/home/cada/.config/sublime-text-2"
+          "windows": "c:\\Users\\Carl\\AppData\\Roaming\\Sublime Text 2\\Packages\\User",
+          "linux": "/home/cada/.config/sublime-text-2/Packages/User"
         }
       ]
     },
@@ -19,7 +19,7 @@
       "paths": [
         {
           "name": "data",
-          "windows": "c:\\Users\\Carl\\AppData\\Roaming\\Sublime Text 2",
+          "windows": "",
           "linux": "/home/cada/.xbmc/userdata"
         }
       ],
