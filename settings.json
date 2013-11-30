@@ -19,7 +19,7 @@
       "paths": [
         {
           "name": "data",
-          "windows": "",
+          "windows": false,
           "linux": "/home/cada/.xbmc/userdata"
         }
       ],

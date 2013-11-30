@@ -68,24 +68,22 @@ class ProgramHandler(object):
         pass
 
     def handle_program(self, program):
-        for path in program["paths"]:
-            if self.os == "linux":
-                (spath,sfile) = os.path.split(path["linux"])
-                #spath = path["linux"]
-            elif self.os == "windows":
-                (spath,sfile) = os.path.split(path["windows"])
-                #spath = path["windows"]
-            #print "spath %s sfile %s" % (spath,sfile)
-            os.chdir(self.out_path)
-            self.old_dir = os.getcwd()
-            os.chdir(spath)
-            compressed_fname = "%s_%s.tar.gz" % (program["name"],path["name"])
-            self.handle_compression(compressed_fname,sfile)
-            os.chdir(self.old_dir)
+        for path in program["paths"]:           
+            logging.debug("The path for %s is %s" % (program["name"], path))             
+            if path[self.os]:
+                (spath,sfile) = os.path.split(path[self.os])               
+                os.chdir(self.out_path)
+                self.old_dir = os.getcwd()
+                if not os.path.exists(spath):
+                    os.makedirs(spath)
+                os.chdir(spath)
+                compressed_fname = "%s_%s.tar.gz" % (program["name"],path["name"])
+                self.handle_compression(compressed_fname,sfile)
+                os.chdir(self.old_dir)
 
     def handle_programs(self,programs):
-        for program in programs:
-            self.handle_program(program)
+        for program in programs:            
+                self.handle_program(program)
 
     def do_work(self):
         self.settings = self.read_dict_from_file(self.settings_file)
