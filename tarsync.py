@@ -126,8 +126,8 @@ def main():
 
     parser = argparse.ArgumentParser()
     group = parser.add_mutually_exclusive_group()
-    group.add_argument("-d", "--compress", action="store_true")
-    group.add_argument("-c", "--decompress", action="store_true")
+    group.add_argument("-c", "--compress", action="store_true")
+    group.add_argument("-d", "--decompress", action="store_true")
 
     #logging.debug(repr(locals()))
     args = parser.parse_args()
