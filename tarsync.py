@@ -55,6 +55,7 @@ class ProgramHandler(object):
         super(ProgramHandler, self).__init__()
         self.settings_file = settings_file
         self.os = platform.system().lower()
+        self.settings = self.load_config(self.settings_file)
 
     def store_dict_to_file(self, filename, thedict):
         with open(filename, "w+") as jsonfile:
@@ -63,6 +64,14 @@ class ProgramHandler(object):
     def read_dict_from_file(self, filename):
         with open(filename, "r+") as jsonfile:
             return json.loads(jsonfile.read())
+
+    def load_config(self,settings_file):
+        return self.read_dict_from_file(settings_file)
+        pass
+
+    def print_config(self):
+        print json.dumps(self.settings,indent=2)
+        pass
 
     def handle_compression(self, compressed_fname, sfile):
         pass
@@ -86,7 +95,6 @@ class ProgramHandler(object):
                 self.handle_program(program)
 
     def do_work(self):
-        self.settings = self.read_dict_from_file(self.settings_file)
         self.out_path = self.settings["path"][self.os]
 
         logging.debug("The outpath for tarsync is %s" % self.out_path)
@@ -128,11 +136,12 @@ def main():
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-c", "--compress", action="store_true")
     group.add_argument("-d", "--decompress", action="store_true")
+    group.add_argument("-l", "--list", action="store_true")
 
     #logging.debug(repr(locals()))
     args = parser.parse_args()
 
-    if not (args.compress or args.decompress):
+    if not (args.compress or args.decompress or args.list):
         parser.error('No action requested, add --compress or --decompress')
 
     if args.compress:
@@ -141,6 +150,9 @@ def main():
     if args.decompress:
         ph = ProgramDecompresser("settings.json")
         ph.do_work()
+    if args.list:
+        ph = ProgramHandler("settings.json")
+        ph.print_config()
 
 if __name__ == '__main__':
     main()
