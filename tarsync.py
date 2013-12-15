@@ -68,10 +68,10 @@ class ProgramHandler(object):
         pass
 
     def handle_program(self, program):
-        for path in program["paths"]:           
-            logging.debug("The path for %s is %s" % (program["name"], path))             
+        for path in program["paths"]:
+            logging.debug("The path for %s is %s" % (program["name"], path))
             if path[self.os]:
-                (spath,sfile) = os.path.split(path[self.os])               
+                (spath,sfile) = os.path.split(path[self.os])
                 os.chdir(self.out_path)
                 self.old_dir = os.getcwd()
                 if not os.path.exists(spath):
@@ -82,7 +82,7 @@ class ProgramHandler(object):
                 os.chdir(self.old_dir)
 
     def handle_programs(self,programs):
-        for program in programs:            
+        for program in programs:
                 self.handle_program(program)
 
     def do_work(self):
@@ -117,10 +117,6 @@ class ProgramCompresser(ProgramHandler):
         tar.close()
         shutil.move(compressed_fname, os.path.join(self.old_dir, compressed_fname))
 
-
-
-
-
 def main():
     #programs = construct_dict()
     #store_dict_to_file("packer_settings.json",programs)
@@ -145,14 +141,6 @@ def main():
     if args.decompress:
         ph = ProgramDecompresser("settings.json")
         ph.do_work()
-
-
-
-
-
-
-
-
 
 if __name__ == '__main__':
     main()
