@@ -18,6 +18,33 @@ logging.basicConfig(filename='%s.log' % program_name,level=logging.DEBUG)
 
 
 
+class ConfigHandler(object):
+    def __init__(self, config_file):
+        self.config_file = config_file
+        self.config = {}
+
+    def store_dict_to_file(self, filename, thedict):
+        with open(filename, "w+") as jsonfile:
+            jsonfile.write(json.dumps(programs, indent =4))
+
+    def read_dict_from_file(self, filename):
+        with open(filename, "r+") as jsonfile:
+            return json.loads(jsonfile.read())
+
+    def load_config(self,config_file=None):
+        if config_file:
+            self.config = self.read_dict_from_file(config_file)
+        else:
+            self.config = self.read_dict_from_file(self.config_file)
+
+    def get_config(self):
+        return self.config
+    pass
+
+    def print_config(self):
+        print json.dumps(self.config,indent=2)
+    pass
+
 def construct_dict():
     programs = []
     paths = []
@@ -51,27 +78,10 @@ def safe_remove_folder(folder):
 
 class ProgramHandler(object):
     """Does something"""
-    def __init__(self, settings_file):
+    def __init__(self,config_handler):
         super(ProgramHandler, self).__init__()
-        self.settings_file = settings_file
         self.os = platform.system().lower()
-        self.settings = self.load_config(self.settings_file)
-
-    def store_dict_to_file(self, filename, thedict):
-        with open(filename, "w+") as jsonfile:
-            jsonfile.write(json.dumps(programs, indent =4))
-
-    def read_dict_from_file(self, filename):
-        with open(filename, "r+") as jsonfile:
-            return json.loads(jsonfile.read())
-
-    def load_config(self,settings_file):
-        return self.read_dict_from_file(settings_file)
-        pass
-
-    def print_config(self):
-        print json.dumps(self.settings,indent=2)
-        pass
+        self.config = config_handler.get_config()
 
     def handle_compression(self, compressed_fname, sfile):
         pass
@@ -95,11 +105,11 @@ class ProgramHandler(object):
                 self.handle_program(program)
 
     def do_work(self):
-        self.out_path = self.settings["path"][self.os]
+        self.out_path = self.config["path"][self.os]
 
         logging.debug("The outpath for tarsync is %s" % self.out_path)
 
-        self.programs = self.settings["programs"]
+        self.programs = self.config["programs"]
         self.handle_programs(self.programs)
 
 
@@ -127,10 +137,13 @@ class ProgramCompresser(ProgramHandler):
 
 def main():
     #programs = construct_dict()
-    #store_dict_to_file("packer_settings.json",programs)
+    #store_dict_to_file("packer_config.json",programs)
     #compress_programs(programs)
     #uncompress_programs(programs)
     logging.debug("Starting logging")
+
+    config = ConfigHandler("config.json")
+    config.load_config()
 
     parser = argparse.ArgumentParser()
     group = parser.add_mutually_exclusive_group()
@@ -145,14 +158,13 @@ def main():
         parser.error('No action requested, add --compress or --decompress')
 
     if args.compress:
-        ph = ProgramCompresser("settings.json")
+        ph = ProgramCompresser(config)
         ph.do_work()
     if args.decompress:
-        ph = ProgramDecompresser("settings.json")
+        ph = ProgramDecompresser(config)
         ph.do_work()
     if args.list:
-        ph = ProgramHandler("settings.json")
-        ph.print_config()
+        config.print_config()
 
 if __name__ == '__main__':
     main()
