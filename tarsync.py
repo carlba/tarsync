@@ -45,6 +45,13 @@ class ConfigHandler(object):
         print json.dumps(self.config,indent=2)
     pass
 
+    def print_config_section(self,section, format="json"):
+        if format==json:
+            print json.dumps(self.config[section],indent=2)
+    pass
+
+
+
 def construct_dict():
     programs = []
     paths = []
@@ -140,6 +147,14 @@ class ProgramCompresser(ProgramHandler):
         tar.close()
         shutil.move(compressed_fname, os.path.join(self.old_dir, compressed_fname))
 
+class ProgramLister(ProgramHandler):
+    """docstring for ClassName"""
+
+    def handle_program(self, program):
+        print program["name"]
+
+
+
 def main():
     #programs = construct_dict()
     #store_dict_to_file("packer_config.json",programs)
@@ -170,7 +185,8 @@ def main():
         ph = ProgramDecompresser(config, filter=args.decompress)
         ph.do_work()
     if args.list:
-        config.print_config()
+        ph = ProgramLister(config)
+        ph.do_work()
 
 if __name__ == '__main__':
     main()
