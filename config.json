@@ -31,6 +31,17 @@
       ],
 
       "output_path": "/home/cada/Dropbox/"
+    },
+    {
+      "name": "pidgin",
+      "paths": [
+        {
+          "name": "data",
+          "windows": false,
+          "linux": "/home/cada/.purple"
+        }
+      ],
+      "output_path": "/home/cada/Dropbox/"
     }
   ]
 }
