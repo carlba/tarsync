@@ -78,31 +78,36 @@ def safe_remove_folder(folder):
 
 class ProgramHandler(object):
     """Does something"""
-    def __init__(self,config_handler):
+    def __init__(self,config_handler,filter=None):
         super(ProgramHandler, self).__init__()
         self.os = platform.system().lower()
         self.config = config_handler.get_config()
+        self.filter = filter
+        logging.debug("The filter contains:%s" % repr(self.filter))
 
     def handle_compression(self, compressed_fname, sfile):
         pass
 
     def handle_program(self, program):
-        for path in program["paths"]:
-            logging.debug("The path for %s is %s" % (program["name"], path))
-            if path[self.os]:
-                (spath,sfile) = os.path.split(path[self.os])
-                os.chdir(self.out_path)
-                self.old_dir = os.getcwd()
-                if not os.path.exists(spath):
-                    os.makedirs(spath)
-                os.chdir(spath)
-                compressed_fname = "%s_%s.tar.gz" % (program["name"],path["name"])
-                self.handle_compression(compressed_fname,sfile)
-                os.chdir(self.old_dir)
+        if program["name"] in self.filter:
+            for path in program["paths"]:
+                logging.debug("The path for %s is %s" % (program["name"], path))
+                if path[self.os]:
+                    (spath,sfile) = os.path.split(path[self.os])
+                    os.chdir(self.out_path)
+                    self.old_dir = os.getcwd()
+                    if not os.path.exists(spath):
+                        os.makedirs(spath)
+                    os.chdir(spath)
+                    compressed_fname = "%s_%s.tar.gz" % (program["name"],path["name"])
+                    self.handle_compression(compressed_fname,sfile)
+                    os.chdir(self.old_dir)
+        else:
+            logging.debug("The program %s is not in the filter." % repr(program["name"]))
 
     def handle_programs(self,programs):
         for program in programs:
-                self.handle_program(program)
+        	self.handle_program(program)
 
     def do_work(self):
         self.out_path = self.config["path"][self.os]
@@ -147,8 +152,8 @@ def main():
 
     parser = argparse.ArgumentParser()
     group = parser.add_mutually_exclusive_group()
-    group.add_argument("-c", "--compress", action="store_true")
-    group.add_argument("-d", "--decompress", action="store_true")
+    group.add_argument("-c", "--compress", nargs="*")
+    group.add_argument("-d", "--decompress", nargs="*")
     group.add_argument("-l", "--list", action="store_true")
 
     #logging.debug(repr(locals()))
@@ -158,10 +163,11 @@ def main():
         parser.error('No action requested, add --compress or --decompress')
 
     if args.compress:
-        ph = ProgramCompresser(config)
+        logging.debug(args.compress)
+        ph = ProgramCompresser(config,filter=args.compress)
         ph.do_work()
     if args.decompress:
-        ph = ProgramDecompresser(config)
+        ph = ProgramDecompresser(config, filter=args.decompress)
         ph.do_work()
     if args.list:
         config.print_config()
