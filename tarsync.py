@@ -1,4 +1,4 @@
-import tarfile
+from tarfile_progress import tarfile_progress as tarfile
 import os
 import sys
 import json
@@ -15,6 +15,25 @@ program_name = "tarsync"
 
 import logging
 logging.basicConfig(filename='%s.log' % program_name,level=logging.DEBUG)
+
+
+
+def progressprint(complete, path=False):
+
+
+
+    '''
+    This is an example callback function. If you pass this as the
+    progress callback then it will print a progress bar to stdout.
+    '''
+    barlen = complete / 2
+    if path:
+        print '\r|' + '#' * barlen + '-' * (50 - barlen) + '|', str(complete) + '% ' +path,
+    else:
+        print '\r|' + '#' * barlen + '-' * (50 - barlen) + '|', str(complete) + '%',
+
+    if complete == 100:
+        print 'File complete'
 
 
 
@@ -131,7 +150,7 @@ class ProgramDecompresser(ProgramHandler):
     def handle_compression(self, compressed_fname, sfile):
         tar = tarfile.open(os.path.join(self.out_path, compressed_fname), "r:gz")
         #logging.debug(tar.getmembers())
-        tar.extractall()
+        tar.extractall(progress = tarfile.progressprint)
         tar.close()
 	if os.path.exists(sfile):
 	    safe_remove_folder(sfile)
@@ -143,7 +162,7 @@ class ProgramCompresser(ProgramHandler):
 
     def handle_compression(self, compressed_fname, sfile):
         tar = tarfile.open(compressed_fname, "w:gz")
-        tar.add(sfile, arcname=compressed_fname)
+        tar.add(sfile, arcname=compressed_fname, progress = progressprint)
         tar.close()
         shutil.move(compressed_fname, os.path.join(self.old_dir, compressed_fname))
 
