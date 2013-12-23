@@ -48,7 +48,7 @@
       "paths": [
         {
           "name": "workspace",
-          "windows": false,
+          "windows": "C://Users//Carl//workspace",
           "linux": "/home/cada/Documents/eclipse_workspace"
         }
       ]
