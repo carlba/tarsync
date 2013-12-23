@@ -37,7 +37,7 @@
       "paths": [
         {
           "name": "data",
-          "windows": false,
+          "windows": "c://Users//Carl//AppData//Roaming//.purple",
           "linux": "/home/cada/.purple"
         }
       ],
