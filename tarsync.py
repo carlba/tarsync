@@ -1,4 +1,3 @@
-from tarfile_progress import tarfile_progress as tarfile
 import os
 import sys
 import json
@@ -8,6 +7,12 @@ import shutil
 import sys
 import subprocess
 import stat
+
+if "windows"  in platform.system().lower():
+    import tarfile
+else:
+    from tarfile_progress import tarfile_progress as tarfile
+
 
 
 program_name = "tarsync"
@@ -150,7 +155,10 @@ class ProgramDecompresser(ProgramHandler):
     def handle_compression(self, compressed_fname, sfile):
         tar = tarfile.open(os.path.join(self.out_path, compressed_fname), "r:gz")
         #logging.debug(tar.getmembers())
-        tar.extractall(progress = tarfile.progressprint)
+        if "windows" in self.os:
+            tar.extractall()
+        else:
+            tar.extractall(progress = progressprint)
         tar.close()
 	if os.path.exists(sfile):
 	    safe_remove_folder(sfile)
@@ -162,7 +170,10 @@ class ProgramCompresser(ProgramHandler):
 
     def handle_compression(self, compressed_fname, sfile):
         tar = tarfile.open(compressed_fname, "w:gz")
-        tar.add(sfile, arcname=compressed_fname, progress = progressprint)
+        if "windows" in self.os:
+            tar.add(sfile, arcname=compressed_fname)
+        else:
+            tar.add(sfile, arcname=compressed_fname, progress = progressprint)
         tar.close()
         shutil.move(compressed_fname, os.path.join(self.old_dir, compressed_fname))
 
