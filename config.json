@@ -42,6 +42,16 @@
         }
       ],
       "output_path": "/home/cada/Dropbox/"
+    },
+    {
+      "name": "eclipse",
+      "paths": [
+        {
+          "name": "workspace",
+          "windows": false,
+          "linux": "/home/cada/Documents/eclipse_workspace"
+        }
+      ]
     }
   ]
 }
