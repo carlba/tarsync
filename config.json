@@ -50,6 +50,11 @@
           "name": "workspace",
           "windows": "C://Users//Carl//workspace",
           "linux": "/home/cada/Documents/eclipse_workspace"
+        },
+        {
+          "name": "data",
+          "windows": false,
+          "linux": "/home/cada/.eclipse"
         }
       ]
     }
