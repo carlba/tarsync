@@ -123,6 +123,7 @@ class ProgramHandler(object):
         if program["name"] in self.filter:
             for path in program["paths"]:
                 logging.debug("The path for %s is %s" % (program["name"], path))
+                path = os.path.expandvars(path)
                 if path[self.os]:
                     (spath,sfile) = os.path.split(path[self.os])
                     os.chdir(self.out_path)
@@ -141,7 +142,7 @@ class ProgramHandler(object):
         	self.handle_program(program)
 
     def do_work(self):
-        self.out_path = self.config["path"][self.os]
+        self.out_path = os.path.expandvars(self.config["path"][self.os])
 
         logging.debug("The outpath for tarsync is %s" % self.out_path)
 

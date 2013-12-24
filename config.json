@@ -1,7 +1,7 @@
 {
   "path": {
     "windows": "c:\\Dropbox\\sync",
-    "linux": "/home/cada/Dropbox/sync"
+    "linux": "$HOME/Dropbox/sync"
   },
   "programs": [
     {
@@ -9,9 +9,9 @@
       "paths": [
         {
           "name": "data",
-          "windows_bak": "c:\\Users\\Carl\\AppData\\Roaming\\Sublime Text 2\\Packages\\User",
+          "windows_bak": "%APPDATA%/Sublime Text 2/Packages/User",
           "windows": false,
-          "linux": "/home/cada/.config/sublime-text-2/Packages/User"
+          "linux": "$HOME/.config/sublime-text-2/Packages/User"
         }
       ]
     },
@@ -20,28 +20,25 @@
       "paths": [
         {
           "name": "userdata",
-          "windows": "c://Users//Carl//AppData//Roaming//XBMC//userdata" ,
-          "linux": "/home/cada/.xbmc/userdata"
+          "windows": "%APPDATA%/XBMC/userdata" ,
+          "linux": "$HOME/.xbmc/userdata"
         },
         {
           "name": "addons",
-          "windows": "c://Users//Carl//AppData//Roaming//XBMC//addons" ,
-          "linux": "/home/cada/.xbmc/addons"
+          "windows": "%APPDATA%/XBMC/addons" ,
+          "linux": "$HOME/.xbmc/addons"
         }
-      ],
-
-      "output_path": "/home/cada/Dropbox/"
+      ]
     },
     {
       "name": "pidgin",
       "paths": [
         {
           "name": "data",
-          "windows": "c://Users//Carl//AppData//Roaming//.purple",
-          "linux": "/home/cada/.purple"
+          "windows": "%APPDATA%/.purple",
+          "linux": "$HOME/.purple"
         }
-      ],
-      "output_path": "/home/cada/Dropbox/"
+      ]
     }
   ]
 }
