@@ -221,9 +221,18 @@ class ProgramSymlinker(ProgramHandler):
     def handle_program_path(self,program,path,program_path):
         (spath,sfile) = os.path.split(program_path)
 
+
+        if os.path.exists(program_path):
+            if os.path.islink(program_path):
+                os.remove(program_path)
+            else:
+                os.rename(program_path,program_path +".bak")
+
         if self.os == "windows":
             os.path.expandvars(self.config["path"][self.os])
             win32file.CreateSymbolicLink(program_path, "%s/%s" %(self.symlink_path,sfile), 1)
+        if self.os == "linux":
+            os.symlink("%s/%s" % (self.symlink_path,sfile),program_path)
 
 
 
