@@ -1,7 +1,13 @@
 {
   "path": {
     "windows": "c:\\Dropbox\\sync",
-    "linux": "$HOME/Dropbox/sync"
+    "linux": "$HOME/Dropbox/sync",
+    "symlink_windows" : "c:/Dropbox/settings/applications",
+    "symlink_linux" : "$HOME/Dropbox/settings/applications"
+  },
+  "symlink_path": {
+    "windows" : "c:/Dropbox/settings/applications",
+    "linux" : "$HOME/Dropbox/settings/applications"
   },
   "programs": [
     {
