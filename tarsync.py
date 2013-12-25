@@ -8,10 +8,12 @@ import sys
 import subprocess
 import stat
 
-if "windows"  in platform.system().lower():
+if "windows" in platform.system().lower():
     import tarfile
 else:
     from tarfile_progress import tarfile_progress as tarfile
+
+from cygwinpath import CygwinPath
 
 
 
@@ -111,10 +113,18 @@ class ProgramHandler(object):
     """Does something"""
     def __init__(self,config_handler,filter=None):
         super(ProgramHandler, self).__init__()
-        self.os = platform.system().lower()
+        self.os = self.get_os()
         self.config = config_handler.get_config()
         self.filter = filter
         logging.debug("The filter contains:%s" % repr(self.filter))
+
+
+    def get_os(self):
+        if "cygwin" in platform.system().lower():
+            ret = "cygwin"
+        else:
+            ret = platform.system().lower()
+        return ret
 
     def handle_compression(self, compressed_fname, sfile):
         pass
@@ -123,9 +133,17 @@ class ProgramHandler(object):
         if program["name"] in self.filter:
             for path in program["paths"]:
                 logging.debug("The path for %s is %s" % (program["name"], path))
-                path = os.path.expandvars(path)
-                if path[self.os]:
-                    (spath,sfile) = os.path.split(path[self.os])
+                logging.debug("self.os is %s" % (self.os))
+
+                if self.os == "cygwin":
+                    win_path = path["windows"]
+                    cygpath = CygwinPath(win_path)
+                    path["cygwin"] = cygpath.get_cygwin_path()
+
+                if self.os in path.keys():
+                    logging.debug("test")
+                    expanded_path = os.path.expandvars(path[self.os])
+                    (spath,sfile) = os.path.split(expanded_path)
                     os.chdir(self.out_path)
                     self.old_dir = os.getcwd()
                     if not os.path.exists(spath):
@@ -142,7 +160,12 @@ class ProgramHandler(object):
         	self.handle_program(program)
 
     def do_work(self):
-        self.out_path = os.path.expandvars(self.config["path"][self.os])
+        if self.os == "cygwin":
+            win_path = os.path.expandvars(self.config["path"]["windows"])
+            cygpath = CygwinPath(win_path)
+            self.out_path = cygpath.get_cygwin_path()
+        else:
+            self.out_path = os.path.expandvars(self.config["path"][self.os])
 
         logging.debug("The outpath for tarsync is %s" % self.out_path)
 

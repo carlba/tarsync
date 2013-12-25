@@ -2,8 +2,11 @@
 	"folders":
 	[
 		{
-			"name":"tarsync",
-            "path": "."
+			"name": "tarsync",
+			"path": "/C/Users/Carl/Documents/dev_projects/tarsync"
+		},
+		{
+			"path": "/C/Users/Carl/Documents/dev_projects/dev/python/snippets"
 		}
 	]
 }
