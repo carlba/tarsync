@@ -16,19 +16,12 @@ else:
 
 from cygwinpath import CygwinPath
 
-
-
 program_name = "tarsync"
-
 
 import logging
 logging.basicConfig(filename='%s.log' % program_name,level=logging.DEBUG)
 
-
-
 def progressprint(complete, path=False):
-
-
 
     '''
     This is an example callback function. If you pass this as the
@@ -42,8 +35,6 @@ def progressprint(complete, path=False):
 
     if complete == 100:
         print 'File complete'
-
-
 
 class ConfigHandler(object):
     def __init__(self, config_file):
@@ -130,6 +121,10 @@ class ProgramHandler(object):
     def handle_compression(self, compressed_fname, sfile):
         pass
 
+    def handle_programs(self,programs):
+        for program in programs:
+            self.handle_program(program)
+
     def handle_program(self, program):
         if program["name"] in self.filter:
             for path in program["paths"]:
@@ -149,9 +144,7 @@ class ProgramHandler(object):
         else:
             logging.debug("The program %s is not in the filter." % repr(program["name"]))
 
-    def handle_programs(self,programs):
-        for program in programs:
-        	self.handle_program(program)
+
 
     def handle_program_path(self,program,path,program_path):
         (spath,sfile) = os.path.split(program_path)
@@ -171,11 +164,8 @@ class ProgramHandler(object):
             self.out_path = cygpath.get_cygwin_path()
         else:
             self.out_path = os.path.expandvars(self.config["path"][self.os])
-
         self.symlink_path = os.path.expandvars(self.config["symlink_path"][self.os])
-
         logging.debug("The outpath for tarsync is %s" % self.out_path)
-
         self.programs = self.config["programs"]
         self.handle_programs(self.programs)
 
@@ -209,14 +199,14 @@ class ProgramCompresser(ProgramHandler):
         shutil.move(compressed_fname, os.path.join(self.old_dir, compressed_fname))
 
 class ProgramLister(ProgramHandler):
-    """docstring for ClassName"""
+    """A class that lists all programs in a config-file"""
 
     def handle_program(self, program):
         print program["name"]
 
 
 class ProgramSymlinker(ProgramHandler):
-    """docstring for ClassName"""
+    """A class that symlinks programs specified in the config-file"""
 
     def handle_program_path(self,program,path,program_path):
         (spath,sfile) = os.path.split(program_path)
@@ -233,9 +223,6 @@ class ProgramSymlinker(ProgramHandler):
             win32file.CreateSymbolicLink(program_path, "%s/%s" %(self.symlink_path,sfile), 1)
         if self.os == "linux":
             os.symlink("%s/%s" % (self.symlink_path,sfile),program_path)
-
-
-
 
 
 def main():
