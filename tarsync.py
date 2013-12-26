@@ -7,10 +7,42 @@ import shutil
 import sys
 import subprocess
 import stat
+import ctypes
+
+
+def IsSymlink(path):
+      FILE_ATTRIBUTE_REPARSE_POINT = 0x0400
+      if os.path.isdir(path) and \
+        (ctypes.windll.kernel32.GetFileAttributesW(unicode(path)) & FILE_ATTRIBUTE_REPARSE_POINT):
+        return True
+      else:
+        return False
+
+def unlink(path):
+    return ctypes.windll.kernel32.UnlockFile(unicode(path))
+
+def remove(path):
+
+    p = subprocess.Popen(["del", "/F",path], stdout=subprocess.PIPE,
+                                      stderr=subprocess.PIPE)
+    out, err = p.communicate()
+    if err:
+        print err
+    return out.rstrip()
+
+def symlink(src,dst):
+    if os.path.isdir(src):
+        ctypes.windll.kernel32.CreateSymbolicLinkW(unicode(dst), unicode(src), 1)
+    else:
+        ctypes.windll.kernel32.CreateSymbolicLinkW(unicode(dst), unicode(src), 0)
 
 if "windows" in platform.system().lower():
     import tarfile
-    import win32file
+    os.path.islink = IsSymlink
+    os.unlink = unlink
+    os.remove = remove
+    os.symlink = symlink
+
 else:
     from tarfile_progress import tarfile_progress as tarfile
 
@@ -67,8 +99,6 @@ class ConfigHandler(object):
         if format==json:
             print json.dumps(self.config[section],indent=2)
     pass
-
-
 
 def construct_dict():
     programs = []
@@ -214,15 +244,13 @@ class ProgramSymlinker(ProgramHandler):
 
         if os.path.exists(program_path):
             if os.path.islink(program_path):
-                os.remove(program_path)
+                os.chmod(program_path, stat.S_IWRITE)
+                os.rmdir(program_path) #
             else:
                 os.rename(program_path,program_path +".bak")
 
-        if self.os == "windows":
-            os.path.expandvars(self.config["path"][self.os])
-            win32file.CreateSymbolicLink(program_path, "%s/%s" %(self.symlink_path,sfile), 1)
-        if self.os == "linux":
-            os.symlink("%s/%s" % (self.symlink_path,sfile),program_path)
+
+        os.symlink("%s/%s" % (self.symlink_path,sfile),program_path)
 
 
 def main():
