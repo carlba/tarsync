@@ -43,6 +43,11 @@
           "name": "data",
           "windows": "%APPDATA%/.purple",
           "linux": "$HOME/.purple"
+        },
+        {
+          "name": "pixmaps_protocols",
+          "windows": "%ProgramFiles(x86)%/Pidgin/pixmaps/pidgin/protocols",
+          "linux": "/usr/share/pixmaps/pidgin/protocols"
         }
       ]
     }
