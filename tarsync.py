@@ -211,7 +211,10 @@ class ProgramSymlinker(ProgramHandler):
         if os.path.exists(program_path):
             if os.path.islink(program_path):
                 os.chmod(program_path, stat.S_IWRITE)
-                os.rmdir(program_path) #
+                if "windows" in platform.system().lower():
+                    os.rmdir(program_path)
+                else:
+                    os.remove(program_path)
             else:
                 os.rename(program_path,program_path +".bak")
 
