@@ -210,7 +210,6 @@ class ProgramSymlinker(ProgramHandler):
 
         if os.path.exists(program_path):
             if os.path.islink(program_path):
-                os.chmod(program_path, stat.S_IWRITE)
                 if "windows" in platform.system().lower():
                     os.rmdir(program_path)
                 else:
