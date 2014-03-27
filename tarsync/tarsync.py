@@ -5,19 +5,26 @@ import platform
 import argparse
 import shutil
 import stat
+import appdirs
+
 
 if "windows" in platform.system().lower():
     import tarfile
-    import os_extended
+    import warp.os.os_extended
 else:
     from tarfile_progress import tarfile_progress as tarfile
 
-from cygwinpath import CygwinPath
-
-program_name = "tarsync"
+from warp.os.cygwinpath import CygwinPath
 
 import logging
-logging.basicConfig(filename='%s.log' % program_name,level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+
+
+
+#import logging
+#logging.basicConfig(filename='%s.log' % program_name,level=logging.DEBUG)
 
 def progressprint(complete, path=False):
 
@@ -104,7 +111,7 @@ class ProgramHandler(object):
         self.os = self.get_os()
         self.config = config_handler.get_config()
         self.filter = filter
-        logging.debug("The filter contains:%s" % repr(self.filter))
+        logger.debug("The filter contains:%s" % repr(self.filter))
 
 
     def get_os(self):
@@ -124,8 +131,8 @@ class ProgramHandler(object):
     def handle_program(self, program):
         if program["name"] in self.filter:
             for path in program["paths"]:
-                logging.debug("The path for %s is %s" % (program["name"], path))
-                logging.debug("self.os is %s" % (self.os))
+                logger.debug("The path for %s is %s" % (program["name"], path))
+                logger.debug("self.os is %s" % (self.os))
 
                 if self.os == "cygwin":
                     win_path = path["windows"]
@@ -133,12 +140,12 @@ class ProgramHandler(object):
                     path["cygwin"] = cygpath.get_cygwin_path()
 
                 if self.os in path.keys():
-                    logging.debug("test")
+                    logger.debug("test")
                     expanded_path = os.path.expandvars(path[self.os])
                     self.handle_program_path(program, path, expanded_path)
 
         else:
-            logging.debug("The program %s is not in the filter." % repr(program["name"]))
+            logger.debug("The program %s is not in the filter." % repr(program["name"]))
 
 
 
@@ -161,7 +168,7 @@ class ProgramHandler(object):
         else:
             self.out_path = os.path.expandvars(self.config["path"][self.os])
         self.symlink_path = os.path.expandvars(self.config["symlink_path"][self.os])
-        logging.debug("The outpath for tarsync is %s" % self.out_path)
+        logger.debug("The outpath for tarsync is %s" % self.out_path)
         self.programs = self.config["programs"]
         self.handle_programs(self.programs)
 
@@ -171,7 +178,7 @@ class ProgramDecompresser(ProgramHandler):
 
     def handle_compression(self, compressed_fname, sfile):
         tar = tarfile.open(os.path.join(self.out_path, compressed_fname), "r:gz")
-        #logging.debug(tar.getmembers())
+        #logger.debug(tar.getmembers())
         if "windows" in self.os:
             tar.extractall()
         else:
@@ -226,9 +233,35 @@ def main():
     #store_dict_to_file("packer_config.json",programs)
     #compress_programs(programs)
     #uncompress_programs(programs)
-    logging.debug("Starting logging")
 
-    config = ConfigHandler("config.json")
+    app_name = os.path.splitext(os.path.basename(__file__))[0]
+
+    logger.debug("Starting logger")
+    logger.info("The application is named %s" % app_name)
+
+    paths = []
+
+    user_config_path = appdirs.user_data_dir("tarsync")
+    paths.append(user_config_path)
+
+    site_config_path = appdirs.site_data_dir("tarsync")
+    if "xdg" in site_config_path:
+        site_config_path = site_config_path.replace("/xdg", "")
+    paths.append(site_config_path)
+
+    found = False
+    for path in paths:
+        if os.path.exists(path):
+            config_path = path
+            break
+    else:
+        config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),"config")
+
+    logger.info("The configuration is read from %s" % config_path)
+
+    logger.debug("APPNAME: %s" %app_name)
+
+    config = ConfigHandler(os.path.join(config_path,app_name + ".json"))
     config.load_config()
 
     parser = argparse.ArgumentParser()
@@ -238,14 +271,14 @@ def main():
     group.add_argument("-s", "--symlink", nargs="*")
     group.add_argument("-l", "--list", action="store_true")
 
-    #logging.debug(repr(locals()))
+    #logger.debug(repr(locals()))
     args = parser.parse_args()
 
     if not (args.compress or args.decompress or args.list or args.symlink):
         parser.error('No action requested, add --compress or --decompress')
 
     if args.compress:
-        logging.debug(args.compress)
+        logger.debug(args.compress)
         ph = ProgramCompresser(config,filter=args.compress)
         ph.do_work()
     if args.decompress:
