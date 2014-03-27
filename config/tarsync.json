@@ -50,6 +50,21 @@
           "linux": "/usr/share/pixmaps/pidgin/protocols"
         }
       ]
+    },
+    {
+      "name": "kupfer",
+      "paths": [
+        {
+          "name": "data",
+          "windows": false,
+          "linux": "/home/cada/.config/kupfer"
+        },
+        {
+          "name": "plugins",
+          "windows": false,
+          "linux": "$HOME/.local/share/kupfer/plugins"
+        }
+      ]
     }
   ]
 }
