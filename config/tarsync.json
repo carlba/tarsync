@@ -15,8 +15,7 @@
       "paths": [
         {
           "name": "data",
-          "windows_bak": "%APPDATA%/Sublime Text 3/Packages/User",
-          "windows": false,
+          "windows": "%APPDATA%/Sublime Text 3/Packages/User",
           "linux": "$HOME/.config/sublime-text-3/Packages/User"
         }
       ]
