@@ -22,39 +22,38 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-
 #import logging
 #logging.basicConfig(filename='%s.log' % program_name,level=logging.DEBUG)
-
 def progressprint(complete, path=False):
-
     '''
     This is an example callback function. If you pass this as the
     progress callback then it will print a progress bar to stdout.
     '''
     barlen = complete / 2
     if path:
-        print '\r|' + '#' * barlen + '-' * (50 - barlen) + '|', str(complete) + '% ' +path,
+        print '\r|' + '#' * barlen + '-' * (50 - barlen) + '|', str(complete) + '% ' + path,
     else:
         print '\r|' + '#' * barlen + '-' * (50 - barlen) + '|', str(complete) + '%',
 
     if complete == 100:
         print 'File complete'
 
+
 class ConfigHandler(object):
+
     def __init__(self, config_file):
         self.config_file = config_file
         self.config = {}
 
     def store_dict_to_file(self, filename, thedict):
         with open(filename, "w+") as jsonfile:
-            jsonfile.write(json.dumps(programs, indent =4))
+            jsonfile.write(json.dumps(programs, indent=4))
 
     def read_dict_from_file(self, filename):
         with open(filename, "r+") as jsonfile:
             return json.loads(jsonfile.read())
 
-    def load_config(self,config_file=None):
+    def load_config(self, config_file=None):
         if config_file:
             self.config = self.read_dict_from_file(config_file)
         else:
@@ -65,30 +64,34 @@ class ConfigHandler(object):
     pass
 
     def print_config(self):
-        print json.dumps(self.config,indent=2)
+        print json.dumps(self.config, indent=2)
     pass
 
-    def print_config_section(self,section, format="json"):
-        if format==json:
-            print json.dumps(self.config[section],indent=2)
+    def print_config_section(self, section, format="json"):
+        if format == json:
+            print json.dumps(self.config[section], indent=2)
     pass
+
 
 def construct_dict():
     programs = []
     paths = []
 
-    path = {"linux" : "/usr/bin", "windows" : "c:\\Program Files (x86)\\XBMC\\portable_data\\userdata"}
+    path = {"linux": "/usr/bin", "windows":
+            "c:\\Program Files (x86)\\XBMC\\portable_data\\userdata"}
     paths.append(path)
-    path = {"linux" : "/usr/bin", "windows" : "c:\\Program Files (x86)\\XBMC\\portable_data\\addons"}
+    path = {"linux": "/usr/bin",
+            "windows": "c:\\Program Files (x86)\\XBMC\\portable_data\\addons"}
     paths.append(path)
 
-    program = {"name" : "xbmc",
-               "paths" : paths
+    program = {"name": "xbmc",
+               "paths": paths
                }
 
     programs.append(program)
 
     return programs
+
 
 def safe_remove_folder(folder):
     if sys.platform.startswith('win'):
@@ -104,15 +107,17 @@ def safe_remove_folder(folder):
     else:
         shutil.rmtree(folder)
 
+
 class ProgramHandler(object):
+
     """Does something"""
-    def __init__(self,config_handler,filter=None):
+
+    def __init__(self, config_handler, filter=None):
         super(ProgramHandler, self).__init__()
         self.os = self.get_os()
         self.config = config_handler.get_config()
         self.filter = filter
         logger.debug("The filter contains:%s" % repr(self.filter))
-
 
     def get_os(self):
         if "cygwin" in platform.system().lower():
@@ -124,7 +129,7 @@ class ProgramHandler(object):
     def handle_compression(self, compressed_fname, sfile):
         pass
 
-    def handle_programs(self,programs):
+    def handle_programs(self, programs):
         for program in programs:
             self.handle_program(program)
 
@@ -145,19 +150,18 @@ class ProgramHandler(object):
                     self.handle_program_path(program, path, expanded_path)
 
         else:
-            logger.debug("The program %s is not in the filter." % repr(program["name"]))
+            logger.debug("The program %s is not in the filter." %
+                         repr(program["name"]))
 
-
-
-    def handle_program_path(self,program,path,program_path):
-        (spath,sfile) = os.path.split(program_path)
+    def handle_program_path(self, program, path, program_path):
+        (spath, sfile) = os.path.split(program_path)
         os.chdir(self.out_path)
         self.old_dir = os.getcwd()
         if not os.path.exists(spath):
             os.makedirs(spath)
         os.chdir(spath)
-        compressed_fname = "%s_%s.tar.gz" % (program["name"],path["name"])
-        self.handle_compression(compressed_fname,sfile)
+        compressed_fname = "%s_%s.tar.gz" % (program["name"], path["name"])
+        self.handle_compression(compressed_fname, sfile)
         os.chdir(self.old_dir)
 
     def do_work(self):
@@ -167,29 +171,33 @@ class ProgramHandler(object):
             self.out_path = cygpath.get_cygwin_path()
         else:
             self.out_path = os.path.expandvars(self.config["path"][self.os])
-        self.symlink_path = os.path.expandvars(self.config["symlink_path"][self.os])
+        self.symlink_path = os.path.expandvars(
+            self.config["symlink_path"][self.os])
         logger.debug("The outpath for tarsync is %s" % self.out_path)
         self.programs = self.config["programs"]
         self.handle_programs(self.programs)
 
 
 class ProgramDecompresser(ProgramHandler):
+
     """docstring for ClassName"""
 
     def handle_compression(self, compressed_fname, sfile):
-        tar = tarfile.open(os.path.join(self.out_path, compressed_fname), "r:gz")
-        #logger.debug(tar.getmembers())
+        tar = tarfile.open(
+            os.path.join(self.out_path, compressed_fname), "r:gz")
+        # logger.debug(tar.getmembers())
         if "windows" in self.os:
             tar.extractall()
         else:
-            tar.extractall(progress = progressprint)
+            tar.extractall(progress=progressprint)
         tar.close()
-	if os.path.exists(sfile):
-	    safe_remove_folder(sfile)
+        if os.path.exists(sfile):
+            safe_remove_folder(sfile)
         shutil.move(compressed_fname, sfile)
 
 
 class ProgramCompresser(ProgramHandler):
+
     """docstring for ClassName"""
 
     def handle_compression(self, compressed_fname, sfile):
@@ -197,11 +205,14 @@ class ProgramCompresser(ProgramHandler):
         if "windows" in self.os:
             tar.add(sfile, arcname=compressed_fname)
         else:
-            tar.add(sfile, arcname=compressed_fname, progress = progressprint)
+            tar.add(sfile, arcname=compressed_fname, progress=progressprint)
         tar.close()
-        shutil.move(compressed_fname, os.path.join(self.old_dir, compressed_fname))
+        shutil.move(
+            compressed_fname, os.path.join(self.old_dir, compressed_fname))
+
 
 class ProgramLister(ProgramHandler):
+
     """A class that lists all programs in a config-file"""
 
     def handle_program(self, program):
@@ -209,11 +220,11 @@ class ProgramLister(ProgramHandler):
 
 
 class ProgramSymlinker(ProgramHandler):
+
     """A class that symlinks programs specified in the config-file"""
 
-    def handle_program_path(self,program,path,program_path):
-        (spath,sfile) = os.path.split(program_path)
-
+    def handle_program_path(self, program, path, program_path):
+        (spath, sfile) = os.path.split(program_path)
 
         if os.path.exists(program_path):
             if os.path.islink(program_path):
@@ -222,17 +233,16 @@ class ProgramSymlinker(ProgramHandler):
                 else:
                     os.remove(program_path)
             else:
-                os.rename(program_path,program_path +".bak")
+                os.rename(program_path, program_path + ".bak")
 
-
-        os.symlink("%s/%s" % (self.symlink_path,sfile),program_path)
+        os.symlink("%s/%s" % (self.symlink_path, sfile), program_path)
 
 
 def main():
     #programs = construct_dict()
-    #store_dict_to_file("packer_config.json",programs)
-    #compress_programs(programs)
-    #uncompress_programs(programs)
+    # store_dict_to_file("packer_config.json",programs)
+    # compress_programs(programs)
+    # uncompress_programs(programs)
 
     app_name = os.path.splitext(os.path.basename(__file__))[0]
 
@@ -255,13 +265,14 @@ def main():
             config_path = path
             break
     else:
-        config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),"config")
+        config_path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "config")
 
     logger.info("The configuration is read from %s" % config_path)
 
-    logger.debug("APPNAME: %s" %app_name)
+    logger.debug("APPNAME: %s" % app_name)
 
-    config = ConfigHandler(os.path.join(config_path,app_name + ".json"))
+    config = ConfigHandler(os.path.join(config_path, app_name + ".json"))
     config.load_config()
 
     parser = argparse.ArgumentParser()
@@ -271,7 +282,7 @@ def main():
     group.add_argument("-s", "--symlink", nargs="*")
     group.add_argument("-l", "--list", action="store_true")
 
-    #logger.debug(repr(locals()))
+    # logger.debug(repr(locals()))
     args = parser.parse_args()
 
     if not (args.compress or args.decompress or args.list or args.symlink):
@@ -279,7 +290,7 @@ def main():
 
     if args.compress:
         logger.debug(args.compress)
-        ph = ProgramCompresser(config,filter=args.compress)
+        ph = ProgramCompresser(config, filter=args.compress)
         ph.do_work()
     if args.decompress:
         ph = ProgramDecompresser(config, filter=args.decompress)
@@ -294,6 +305,3 @@ def main():
 if __name__ == '__main__':
     main()
     pass
-
-
-
