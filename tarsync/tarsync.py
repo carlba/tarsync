@@ -42,34 +42,34 @@ def progressprint(complete, path=False):
 class ConfigHandler(object):
 
     def __init__(self, config_file):
-        self.config_file = config_file
-        self.config = {}
+        self._config_file = config_file
+        self._config = {}
 
-    def store_dict_to_file(self, filename, thedict):
+    def __store_dict_to_file(self, filename, thedict):
         with open(filename, "w+") as jsonfile:
-            jsonfile.write(json.dumps(programs, indent=4))
+            jsonfile.write(json.dumps(thedict, indent=4))
 
-    def read_dict_from_file(self, filename):
+    def __read_dict_from_file(self, filename):
         with open(filename, "r+") as jsonfile:
             return json.loads(jsonfile.read())
 
-    def load_config(self, config_file=None):
+    def load(self, config_file=None):
         if config_file:
-            self.config = self.read_dict_from_file(config_file)
+            self._config = self.__read_dict_from_file(config_file)
         else:
-            self.config = self.read_dict_from_file(self.config_file)
+            self._config = self.__read_dict_from_file(self._config_file)
 
-    def get_config(self):
-        return self.config
+    @property
+    def config(self):
+        return self._config
+
+    def output(self):
+        print json.dumps(self._config, indent=2)
     pass
 
-    def print_config(self):
-        print json.dumps(self.config, indent=2)
-    pass
-
-    def print_config_section(self, section, format="json"):
+    def output_section(self, section, format="json"):
         if format == json:
-            print json.dumps(self.config[section], indent=2)
+            print json.dumps(self._config[section], indent=2)
     pass
 
 
@@ -115,7 +115,7 @@ class ProgramHandler(object):
     def __init__(self, config_handler, filter=None):
         super(ProgramHandler, self).__init__()
         self.os = self.get_os()
-        self.config = config_handler.get_config()
+        self._config = config_handler.config
         self.filter = filter
         logger.debug("The filter contains:%s" % repr(self.filter))
 
@@ -166,15 +166,15 @@ class ProgramHandler(object):
 
     def do_work(self):
         if self.os == "cygwin":
-            win_path = os.path.expandvars(self.config["path"]["windows"])
+            win_path = os.path.expandvars(self._config["path"]["windows"])
             cygpath = CygwinPath(win_path)
             self.out_path = cygpath.get_cygwin_path()
         else:
-            self.out_path = os.path.expandvars(self.config["path"][self.os])
+            self.out_path = os.path.expandvars(self._config["path"][self.os])
         self.symlink_path = os.path.expandvars(
-            self.config["symlink_path"][self.os])
+            self._config["symlink_path"][self.os])
         logger.debug("The outpath for tarsync is %s" % self.out_path)
-        self.programs = self.config["programs"]
+        self.programs = self._config["programs"]
         self.handle_programs(self.programs)
 
 
@@ -240,8 +240,7 @@ class ProgramSymlinker(ProgramHandler):
 
 def main():
     #programs = construct_dict()
-    # store_dict_to_file("packer_config.json",programs)
-    # compress_programs(programs)
+        # compress_programs(programs)
     # uncompress_programs(programs)
 
     app_name = os.path.splitext(os.path.basename(__file__))[0]
@@ -273,7 +272,7 @@ def main():
     logger.debug("APPNAME: %s" % app_name)
 
     config = ConfigHandler(os.path.join(config_path, app_name + ".json"))
-    config.load_config()
+    config.load()
 
     parser = argparse.ArgumentParser()
     group = parser.add_mutually_exclusive_group()
