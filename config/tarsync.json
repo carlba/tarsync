@@ -64,6 +64,16 @@
           "linux": "$HOME/.local/share/kupfer/plugins"
         }
       ]
+    },
+    {
+      "name": "terminator",
+      "paths": [
+        {
+          "name": "data",
+          "windows": false,
+          "linux": "/home/cada/.config/terminator"
+        }
+      ]
     }
   ]
 }
