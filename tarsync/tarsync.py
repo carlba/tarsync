@@ -15,8 +15,8 @@ from warp.config.appdata import AppData
 from exceptions import MissingPathError
 
 
-from warp.logging import log
-log = log.get_logger(__name__)
+import warp.logging
+log = warp.logging.get_logger(__name__)
 
 if "windows" in platform.system().lower():
     import tarfile
