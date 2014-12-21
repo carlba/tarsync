@@ -1,0 +1,2 @@
+class MissingPathError(Exception):
+    pass
