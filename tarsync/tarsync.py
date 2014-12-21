@@ -5,12 +5,18 @@ import platform
 import argparse
 import shutil
 import stat
-import appdirs
 import pprint
 
+from warp.os.cygwinpath import CygwinPath
+from warp.os import safe_remove_folder
+from warp.config.confighandler import ConfigHandler
+from warp.config.appdata import AppData
 
-pp = pprint.PrettyPrinter(indent=4)
+from exceptions import MissingPathError
 
+
+from warp.logging import log
+log = log.get_logger(__name__)
 
 if "windows" in platform.system().lower():
     import tarfile
@@ -18,20 +24,9 @@ if "windows" in platform.system().lower():
 else:
     from tarfile_progress import tarfile_progress as tarfile
 
-from warp.os.cygwinpath import CygwinPath
-
-import logging
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+pp = pprint.PrettyPrinter(indent=4)
 
 
-class MissingPathError(Exception):
-    pass
-
-
-#import logging
-#logging.basicConfig(filename='%s.log' % program_name,level=logging.DEBUG)
 def progressprint(complete, path=False):
     '''
     This is an example callback function. If you pass this as the
@@ -45,103 +40,6 @@ def progressprint(complete, path=False):
 
     if complete == 100:
         print 'File complete'
-
-
-class ConfigHandler(object):
-
-    def __init__(self, config_file):
-        #import ipdb;ipdb.set_trace()
-        self._config_file = os.path.basename(config_file)
-        self._config = {}
-
-    def __locate_config_directory(self, config_file):
-        paths = []
-
-        user_config_path = appdirs.user_config_dir("tarsync")
-        paths.append(user_config_path)
-
-        site_config_path = appdirs.site_config_dir("tarsync")
-        paths.append(site_config_path)
-
-        for path in paths:
-            if os.path.exists(path):
-                config_path = path
-                break
-        else:
-            config_path = os.path.join(
-                os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "config")
-        logger.info("Looking for config in %s" % paths)
-        logger.info("The configuration is read from %s" % config_path)
-
-        return config_path
-
-    def __store_dict_to_file(self, filename, thedict):
-        with open(filename, "w+") as jsonfile:
-            jsonfile.write(json.dumps(thedict, indent=4))
-
-    def __read_dict_from_file(self, filename):
-        with open(filename, "r+") as jsonfile:
-            return json.loads(jsonfile.read())
-
-    def load(self, config_file=None):
-        if config_file:
-            config_file = config_file
-        else:
-            config_file = self._config_file
-
-        located_config_directory = self.__locate_config_directory(config_file)
-        located_config_file = os.path.join(
-            located_config_directory, config_file)
-
-        self._config = self.__read_dict_from_file(located_config_file)
-
-    @property
-    def config(self):
-        return self._config
-
-    def output(self):
-        print json.dumps(self._config, indent=2)
-    pass
-
-    def output_section(self, section, format="json"):
-        if format == json:
-            print json.dumps(self._config[section], indent=2)
-    pass
-
-
-def construct_dict():
-    programs = []
-    paths = []
-
-    path = {"linux": "/usr/bin", "windows":
-            "c:\\Program Files (x86)\\XBMC\\portable_data\\userdata"}
-    paths.append(path)
-    path = {"linux": "/usr/bin",
-            "windows": "c:\\Program Files (x86)\\XBMC\\portable_data\\addons"}
-    paths.append(path)
-
-    program = {"name": "xbmc",
-               "paths": paths
-               }
-
-    programs.append(program)
-
-    return programs
-
-
-def safe_remove_folder(folder):
-    if sys.platform.startswith('win'):
-        if os.path.exists(folder):
-            for root, dirs, files in os.walk(folder, topdown=False):
-                for name in files:
-                    filename = os.path.join(root, name)
-                    os.chmod(filename, stat.S_IWRITE)
-                    os.remove(filename)
-                for name in dirs:
-                    os.rmdir(os.path.join(root, name))
-            os.rmdir(folder)
-    else:
-        shutil.rmtree(folder)
 
 
 class Path(object):
@@ -249,21 +147,18 @@ class Program(object):
             path = Path(os_paths=path_entry, name=path_entry["name"])
             path.decompress(self.name, out_path)
 
-
 def main():
-    #programs = construct_dict()
-        # compress_programs(programs)
-    # uncompress_programs(programs)
-
+    info = {"system": "main"}
+    app_path = os.path.abspath(__file__)
     app_name = os.path.splitext(os.path.basename(__file__))[0]
 
-    logger.debug("Starting logger")
-    logger.info("The application is named %s" % app_name)
+    log.debug("Starting log", **info)
+    log.info("The application path is named %s" % app_path, **info)
+    log.info("The application is named %s" % app_name, **info)
 
-    config = ConfigHandler(app_name + ".json")
+    appdata = AppData(app_name, app_path, develop=True)
+    config = ConfigHandler(appdata.get_config_file_path("tarsync.json"))
     config.load()
-
-    logger.debug(json.dumps(config.config, indent=4))
 
     parser = argparse.ArgumentParser()
     group = parser.add_mutually_exclusive_group()
@@ -273,7 +168,7 @@ def main():
     group.add_argument("-l", "--list", action="store_true")
     group.add_argument("-i", "--install", nargs="*")
 
-    # logger.debug(repr(locals()))
+    # log.debug(repr(locals()))
     args = parser.parse_args()
 
     if not (args.compress or args.decompress or args.list or args.symlink or args.install):
@@ -295,7 +190,7 @@ def main():
             programs.append(program)
         return programs
 
-    args_list = ["compress", "decompress", "symlink", "list", "install"]
+    args_list = ["compress", "decompress", "symlink", "install"]
 
     for arg_name in args_list:
         arg = getattr(args, arg_name)
@@ -305,19 +200,10 @@ def main():
                 method = getattr(program, arg_name)
                 method()
 
+    if args.list:
+        programs = get_programs(config, arg)
+        for program in programs:
+            print program.name
 
-    # for program in programs:
-    #     if args.compress:
-    #         program.compress()
-    #     if args.decompress:
-    #         program.decompress()
-    #     if args.symlink:
-    #         ph = ProgramSymlinker(config, filter=args.symlink)
-    #         ph.do_work()
-    #     if args.list:
-    #         print program.name
-    #     if args.install:
-    #         program.install()
 if __name__ == '__main__':
     main()
-    pass
