@@ -74,6 +74,16 @@
           "linux": "/home/cada/.config/terminator"
         }
       ]
+    },
+    {
+      "name": "doublecmd",
+      "paths": [
+        {
+          "name": "data",
+          "windows": false,
+          "linux": "/home/cada/.config/doublecmd"
+        }
+      ]
     }
   ]
 }
