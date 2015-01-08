@@ -84,6 +84,16 @@
           "linux": "/home/cada/.config/doublecmd"
         }
       ]
+    },
+    {
+      "name": "launchy",
+      "paths": [
+        {
+          "name": "data",
+          "windows": "%APPDATA%/Launchy",
+          "linux": false
+        }
+      ]
     }
   ]
 }
