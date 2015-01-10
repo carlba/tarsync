@@ -1,99 +1,100 @@
 {
-  "path": {
-    "windows": "c:\\Dropbox\\sync",
-    "linux": "$HOME/Dropbox/sync",
-    "symlink_windows" : "c:/Dropbox/settings/applications",
-    "symlink_linux" : "$HOME/Dropbox/settings/applications"
-  },
-  "symlink_path": {
-    "windows" : "c:/Dropbox/settings/applications",
-    "linux" : "$HOME/Dropbox/settings/applications"
-  },
-  "programs": [
-    {
-      "name": "sublime",
-      "paths": [
-        {
-          "name": "data",
-          "windows": "%APPDATA%/Sublime Text 3/Packages/User",
-          "linux": "$HOME/.config/sublime-text-3/Packages/User"
-        }
-      ]
-    },
-    {
-      "name": "xbmc",
-      "paths": [
-        {
-          "name": "userdata",
-          "windows": "%APPDATA%/XBMC/userdata" ,
-          "linux": "$HOME/.xbmc/userdata"
+    "path": {
+        "windows": "c:\\Dropbox\\sync", 
+        "symlink_linux": "$HOME/Dropbox/settings/applications", 
+        "symlink_windows": "c:/Dropbox/settings/applications", 
+        "linux": "$HOME/Dropbox/sync"
+    }, 
+    "symlink_path": {
+        "windows": "c:/Dropbox/settings/applications", 
+        "linux": "$HOME/Dropbox/settings/applications"
+    }, 
+    "programs": {
+        "sublime": {
+            "paths": [
+                {
+                    "windows": "%APPDATA%/Sublime Text 3/Packages/User", 
+                    "name": "data", 
+                    "linux": "$HOME/.config/sublime-text-3/Packages/User"
+                }
+            ], 
+            "name": "sublime"
+        }, 
+        "pidgin": {
+            "paths": [
+                {
+                    "windows": "%APPDATA%/.purple", 
+                    "name": "data", 
+                    "linux": "$HOME/.purple"
+                }, 
+                {
+                    "windows": "%ProgramFiles(x86)%/Pidgin/pixmaps/pidgin/protocols", 
+                    "name": "pixmaps_protocols", 
+                    "linux": "/usr/share/pixmaps/pidgin/protocols"
+                }
+            ], 
+            "name": "pidgin"
+        }, 
+        "terminator": {
+            "paths": [
+                {
+                    "windows": false, 
+                    "name": "data", 
+                    "linux": "$HOME/.config/terminator"
+                }
+            ], 
+            "name": "terminator"
+        }, 
+        "doublecmd": {
+            "paths": [
+                {
+                    "windows": false, 
+                    "name": "data", 
+                    "linux": "$HOME/.config/doublecmd"
+                }
+            ], 
+            "name": "doublecmd"
+        }, 
+        "kupfer": {
+            "paths": [
+                {
+                    "windows": false, 
+                    "name": "data", 
+                    "linux": "$HOME/.config/kupfer"
+                }, 
+                {
+                    "windows": false, 
+                    "name": "plugins", 
+                    "linux": "$HOME/.local/share/kupfer/plugins"
+                }
+            ], 
+            "name": "kupfer"
+        }, 
+        "xbmc": {
+            "paths": [
+                {
+                    "windows": "%APPDATA%/XBMC/userdata", 
+                    "name": "userdata", 
+                    "linux": "$HOME/.xbmc/userdata"
+                }, 
+                {
+                    "windows": "%APPDATA%/XBMC/addons", 
+                    "name": "addons", 
+                    "linux": "$HOME/.xbmc/addons"
+                }
+            ], 
+            "name": "xbmc"
         },
-        {
-          "name": "addons",
-          "windows": "%APPDATA%/XBMC/addons" ,
-          "linux": "$HOME/.xbmc/addons"
+        "dev": {
+            "paths": [
+                {
+                    "windows": false, 
+                    "name": "dev", 
+                    "linux": "$HOME/dev"
+                } 
+            ], 
+            "name": "dev"
         }
-      ]
-    },
-    {
-      "name": "pidgin",
-      "paths": [
-        {
-          "name": "data",
-          "windows": "%APPDATA%/.purple",
-          "linux": "$HOME/.purple"
-        },
-        {
-          "name": "pixmaps_protocols",
-          "windows": "%ProgramFiles(x86)%/Pidgin/pixmaps/pidgin/protocols",
-          "linux": "/usr/share/pixmaps/pidgin/protocols"
-        }
-      ]
-    },
-    {
-      "name": "kupfer",
-      "paths": [
-        {
-          "name": "data",
-          "windows": false,
-          "linux": "/home/cada/.config/kupfer"
-        },
-        {
-          "name": "plugins",
-          "windows": false,
-          "linux": "$HOME/.local/share/kupfer/plugins"
-        }
-      ]
-    },
-    {
-      "name": "terminator",
-      "paths": [
-        {
-          "name": "data",
-          "windows": false,
-          "linux": "/home/cada/.config/terminator"
-        }
-      ]
-    },
-    {
-      "name": "doublecmd",
-      "paths": [
-        {
-          "name": "data",
-          "windows": false,
-          "linux": "/home/cada/.config/doublecmd"
-        }
-      ]
-    },
-    {
-      "name": "launchy",
-      "paths": [
-        {
-          "name": "data",
-          "windows": "%APPDATA%/Launchy",
-          "linux": false
-        }
-      ]
+
     }
-  ]
 }

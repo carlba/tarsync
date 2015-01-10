@@ -147,6 +147,10 @@ class Program(object):
             path = Path(os_paths=path_entry, name=path_entry["name"])
             path.decompress(self.name, out_path)
 
+    def __str__(self):
+        return {k: v for k, v in self.__dict__.iteritems()}
+
+
 def main():
     info = {"system": "main"}
     app_path = os.path.abspath(__file__)
@@ -156,8 +160,14 @@ def main():
     log.info("The application path is named %s" % app_path, **info)
     log.info("The application is named %s" % app_name, **info)
 
-    appdata = AppData(app_name, app_path, develop=True)
-    config = ConfigHandler(appdata.get_config_file_path("tarsync.json"))
+    appdata = AppData(app_name, app_path, develop=False)
+    appdata.add_path("$HOME/Dropbox/sync/")    
+
+    config_path = appdata.get_config_file_path("tarsync.json")
+
+    log.info("The config is read from %s" % appdata.get_config_file_path("tarsync.json"), **info)
+    
+    config = ConfigHandler(config_path)
     config.load()
 
     parser = argparse.ArgumentParser()
@@ -166,29 +176,39 @@ def main():
     group.add_argument("-d", "--decompress", nargs="*")
     group.add_argument("-s", "--symlink", nargs="*")
     group.add_argument("-l", "--list", action="store_true")
+    group.add_argument("-u", "--update", action="store_true")
     group.add_argument("-i", "--install", nargs="*")
 
     # log.debug(repr(locals()))
     args = parser.parse_args()
 
-    if not (args.compress or args.decompress or args.list or args.symlink or args.install):
+    if not (args.compress or args.decompress or args.list or args.symlink or args.install, args.update):
         parser.error('No action requested, add --compress or --decompress')
 
-    config_programs = config.config["programs"]
-    dict_programs = {
-        program["name"]: program for (index, program) in enumerate(config_programs)}
-
     def get_programs(config, filter=None):
-        programs = []
+        programs = {}
 
-        for program_name in dict_programs:
+        config_programs = config.config["programs"]
+
+        for program_name, program_data in config_programs.iteritems():
             if filter and not program_name in filter:
                 continue
             program = Program(name=program_name,
-                              paths=dict_programs[program_name]["paths"],
+                              paths=program_data["paths"],
                               out_path=config.config["path"])
-            programs.append(program)
+            programs[program_name] = program
         return programs
+
+    def store_programs(programs, filter=None):
+        dict_programs = {}
+
+        for program_name, program_data in programs.iteritems():
+            if filter and not program_name in filter:
+                continue
+            dict_program = program_data.__dict__
+            dict_program.pop("out_path")
+            dict_programs[program_name] = dict_program
+        return dict_programs
 
     args_list = ["compress", "decompress", "symlink", "install"]
 
@@ -196,14 +216,24 @@ def main():
         arg = getattr(args, arg_name)
         if arg:
             programs = get_programs(config, arg)
-            for program in programs:
+            for program_name, program in programs.iteritems():
                 method = getattr(program, arg_name)
                 method()
 
     if args.list:
         programs = get_programs(config, arg)
-        for program in programs:
+        for program_name, program in programs.iteritems():
             print program.name
+
+    if args.update:
+        programs = get_programs(config, arg)
+
+        dict_programs = store_programs(programs)
+        config.config["programs"] = dict_programs
+        config.save()
+
+        print store_programs(programs)
+
 
 if __name__ == '__main__':
     main()
