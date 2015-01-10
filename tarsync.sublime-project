@@ -1,12 +1,32 @@
 {
+	"build_systems":
+	[
+		{
+			"file_regex": "^[ ]*File \"(...*?)\", line ([0-9]*)",
+			"name": "Anaconda Python Builder",
+			"selector": "source.python",
+			"shell_cmd": "python -u \"$file\""
+		}
+	],
 	"folders":
 	[
 		{
+			"follow_symlinks": true,
 			"name": "tarsync",
 			"path": "."
 		},
 		{
-			"path": "/C/Users/Carl/Documents/dev_projects/dev/python/snippets"
+			"follow_symlinks": true,
+			"name": "tarsync@servern",
+			"path": "/home/cada/dev/servern/home/cada/dev_projects/tarsync"
+		},
+		{
+			"follow_symlinks": true,
+			"path": "/home/cada/dev/servern"
+		},
+		{
+			"follow_symlinks": true,
+			"path": "/home/cada/Dropbox/sync"
 		}
 	]
 }
